@@ -64,6 +64,7 @@ void checkFile(const std::filesystem::path& path, const int rate, std::ostream& 
 	}
 
 	int count = lines.size() / rate + 1;
+	count = std::min(count, static_cast<int>(lines.size()));
 
 	for (int i = 0; i < 75; i++)
 	{
@@ -73,9 +74,21 @@ void checkFile(const std::filesystem::path& path, const int rate, std::ostream& 
 
 	if (lines.size() != 0)
 	{
+		/*
 		for (int i = 0; i < count; i++)
 		{
 			int index = rand() % lines.size();
+			output << " > Line: " << console->addSpaces(std::to_string(index), 6) << "Characters: " << console->addSpaces(std::to_string(lines[index].size()), 6) << lines[index] << std::endl;
+		}
+		*/
+
+		float range = static_cast<float>(lines.size()) / static_cast<float>(count);
+		for (int i = 0; i < count; i++)
+		{
+			float random = static_cast<float>(rand() % 1000) * 0.001f;
+			int index = static_cast<int>((static_cast<float>(i) + random) * range);
+			index = std::min(index, static_cast<int>(lines.size() - 1));
+			//std::cout << index << ", " << random << ", " << range << std::endl;
 			output << " > Line: " << console->addSpaces(std::to_string(index), 6) << "Characters: " << console->addSpaces(std::to_string(lines[index].size()), 6) << lines[index] << std::endl;
 		}
 	}
