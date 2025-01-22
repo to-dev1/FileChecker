@@ -33,7 +33,17 @@ public:
 class CheckCommand : public Command
 {
 public:
-	CheckCommand() : Command("check", "Randomly print lines from the files in the target directory") {};
+	ReaderStr fileReader;
+	ReaderInt seedReader;
+	ReaderInt rateReader;
+	ReaderInt lineRateReader;
+
+	CheckCommand() : Command("check", "Randomly print lines from the files in the target directory"), 
+		fileReader("Path to be checked, checks working directory if argument was not given"),
+		seedReader("Seed to be used by the random generator to sample the directory"), 
+		rateReader("1 out of this many files are checked"), 
+		lineRateReader("1 out of this many lines are checked") 
+	{};
 
 	virtual CheckCommand* clone() const
 	{
@@ -41,4 +51,6 @@ public:
 	}
 
 	virtual void run(std::vector<Parameter>& parameters, std::ostream& output, Console* console);
+
+	virtual void addInfo(std::ostream& output);
 };

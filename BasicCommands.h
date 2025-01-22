@@ -18,7 +18,9 @@ public:
 class HelpCommand : public Command
 {
 public:
-	HelpCommand() : Command("help", "This command, displays all available commands and their use cases") {};
+	ReaderStr commandReader;
+
+	HelpCommand() : Command("help", "This command, displays all available commands and their use cases", true), commandReader("Command to get information about") {};
 
 	virtual HelpCommand* clone() const
 	{
@@ -26,6 +28,8 @@ public:
 	}
 
 	virtual void run(std::vector<Parameter>& parameters, std::ostream& output, Console* console);
+
+	virtual void addInfo(std::ostream& output);
 };
 
 class QuitCommand : public Command

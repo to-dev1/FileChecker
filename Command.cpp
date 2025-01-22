@@ -29,11 +29,15 @@ void Command::execute(std::vector<Parameter>& parameters, std::ostream& output, 
 
 	//Run the implementation of this command
 	run(parameters, output, console);
+
+	//Increment
+	console->executedCommandCount++;
 }
 
 Console::Console(const Console& c)
 {
 	quit = c.quit;
+	executedCommandCount = c.executedCommandCount;
 
 	for (int i = 0; i < c.commands.size(); i++)
 	{
@@ -51,6 +55,7 @@ Console& Console::operator=(const Console& c)
 	commands.clear();
 
 	quit = c.quit;
+	executedCommandCount = c.executedCommandCount;
 
 	for (int i = 0; i < c.commands.size(); i++)
 	{
@@ -128,12 +133,22 @@ void Console::execute(const std::string& cmd, std::ostream& output)
 
 	//std::cout << "words: " << words.size() << std::endl;
 
+	executedCommandCount = 0;
+
+	bool blocked = false;
+
 	std::vector<Parameter> parameters;
 	int command = -1;
 	for (int i = 0; i < words.size(); i++)
 	{
 		const std::string& word = words[i];
 		int cmdIdx = findCommand(word);
+
+		if (cmdIdx != -1 && blocked)
+		{
+			cmdIdx = -1;
+			blocked = false;
+		}
 
 		//Add parameter if not command
 		if (cmdIdx == -1)
@@ -153,6 +168,7 @@ void Console::execute(const std::string& cmd, std::ostream& output)
 			//Reset
 			parameters.clear();
 			command = cmdIdx;
+			if(command != -1) blocked = commands[command]->blockNext;
 		}
 	}
 
@@ -160,5 +176,10 @@ void Console::execute(const std::string& cmd, std::ostream& output)
 	{
 		//Execute last command
 		commands[command]->execute(parameters, output, this);
+	}
+
+	if (executedCommandCount == 0)
+	{
+		output << "No command was identified, use help to see available commands" << std::endl;
 	}
 }

@@ -147,24 +147,9 @@ void CheckCommand::run(std::vector<Parameter>& parameters, std::ostream& output,
 	int checkRate = 100; //100
 	int lineCheckRate = 100; //1000
 
-	if (parameters.size() != 0)
-	{
-		std::cout << "word: " << parameters[0].word << std::endl;
-		seed = std::stoi(parameters[0].word);
-		parameters.erase(parameters.begin());
-	}
-
-	if (parameters.size() != 0)
-	{
-		checkRate = std::stoi(parameters[0].word);
-		parameters.erase(parameters.begin());
-	}
-
-	if (parameters.size() != 0)
-	{
-		lineCheckRate = std::stoi(parameters[0].word);
-		parameters.erase(parameters.begin());
-	}
+	seedReader.read(seed, parameters);
+	rateReader.read(checkRate, parameters);
+	lineRateReader.read(lineCheckRate, parameters);
 
 	//Initialize random
 	srand(0);
@@ -197,4 +182,13 @@ void CheckCommand::run(std::vector<Parameter>& parameters, std::ostream& output,
 	}
 
 	output << "Files: " << count << "/" << files.size() << std::endl;
+}
+
+void CheckCommand::addInfo(std::ostream& output)
+{
+	output << "Parameters:\n";
+	fileReader.getInfo(output);
+	seedReader.getInfo(output);
+	rateReader.getInfo(output);
+	lineRateReader.getInfo(output);
 }
