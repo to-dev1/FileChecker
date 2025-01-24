@@ -145,11 +145,13 @@
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="file-checker.cpp" />
     <ClCompile Include="FileCheck.cpp" />
+    <ClCompile Include="FileUtility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicCommands.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="FileCheck.h" />
+    <ClInclude Include="FileUtility.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

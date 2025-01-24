@@ -72,7 +72,7 @@ void HelpCommand::addInfo(std::ostream& output)
 
 void QuitCommand::run(std::vector<Parameter>& parameters, std::ostream& output, Console* console)
 {
-	std::cout << "Quit program" << std::endl;
+	output << "Quit program" << std::endl;
 
 	console->quit = true;
 }

@@ -7,9 +7,7 @@
 #include <fstream>
 
 #include "Command.h"
-
-//Recursively get all files
-void getAllFiles(const std::filesystem::path& path, std::vector<std::filesystem::directory_entry>& items, const bool recursive);
+#include "FileUtility.h"
 
 void getFileInfo(const std::filesystem::directory_entry& item, std::ostream& output, Console* console);
 
