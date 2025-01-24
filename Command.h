@@ -140,7 +140,10 @@ public:
 	int executedCommandCount;
 	bool quit;
 
-	Console(const std::vector<Command*>& cmd) : commands(cmd), quit(false), executedCommandCount(0) {};
+	std::string cmdSymbol;
+	std::string startMessage;
+
+	Console(const std::vector<Command*>& cmd, const std::string& s = ">", const std::string& m = "") : commands(cmd), cmdSymbol(s), startMessage(m), quit(false), executedCommandCount(0) {};
 	Console(const Console& c);
 	Console& operator=(const Console& c);
 
@@ -160,4 +163,6 @@ public:
 	void parseToWords(const std::string& str, std::vector<std::string>& words);
 
 	void execute(const std::string& cmd, std::ostream& output);
+
+	void runConsole(std::istream& input, std::ostream& output);
 };

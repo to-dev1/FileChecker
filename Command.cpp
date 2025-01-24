@@ -38,6 +38,8 @@ Console::Console(const Console& c)
 {
 	quit = c.quit;
 	executedCommandCount = c.executedCommandCount;
+	cmdSymbol = c.cmdSymbol;
+	startMessage = c.startMessage;
 
 	for (int i = 0; i < c.commands.size(); i++)
 	{
@@ -56,6 +58,8 @@ Console& Console::operator=(const Console& c)
 
 	quit = c.quit;
 	executedCommandCount = c.executedCommandCount;
+	cmdSymbol = c.cmdSymbol;
+	startMessage = c.startMessage;
 
 	for (int i = 0; i < c.commands.size(); i++)
 	{
@@ -181,5 +185,20 @@ void Console::execute(const std::string& cmd, std::ostream& output)
 	if (executedCommandCount == 0)
 	{
 		output << "No command was identified, use help to see available commands" << std::endl;
+	}
+}
+
+void Console::runConsole(std::istream& input, std::ostream& output)
+{
+	std::cout << startMessage;
+
+	std::string cmd = "";
+	std::cout << cmdSymbol;
+	while (std::getline(input, cmd))
+	{
+		execute(cmd, std::cout);
+		output << cmdSymbol;
+
+		if (quit) break;
 	}
 }

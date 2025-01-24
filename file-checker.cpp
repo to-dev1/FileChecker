@@ -6,17 +6,8 @@
 
 int main()
 {
-    Console console = Console({new HelloCommand(), new HelpCommand(), new QuitCommand(), new FilesCommand(), new CheckCommand(), new CountCommand(), new PatternCommand()});
+    Console console = Console({new HelloCommand(), new HelpCommand(), new QuitCommand(), new FilesCommand(), new CheckCommand(), new CountCommand(), new PatternCommand()},
+       "[>] ", "Welcome to file checker, you can use the command help to get started\n");
 
-    std::string symbol = "[>] ";
-
-    std::string cmd = "";
-    std::cout << symbol;
-    while (std::getline(std::cin, cmd))
-    {        
-        console.execute(cmd, std::cout);
-        std::cout << symbol;
-
-        if (console.quit) break;
-    }
+    console.runConsole(std::cin, std::cout);
 }
