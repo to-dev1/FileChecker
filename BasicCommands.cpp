@@ -76,3 +76,111 @@ void QuitCommand::run(std::vector<Parameter>& parameters, std::ostream& output, 
 
 	console->quit = true;
 }
+
+std::string parsePattern(const std::string& found, const std::vector<std::string>& replace, std::ostream& output)
+{
+	std::string pattern = "";
+
+	bool getIndex = false;
+	std::string indexStr = "";
+	for (int i = 0; i < found.size(); i++)
+	{
+		char c = found[i];
+
+		if (c == '{')
+		{
+			getIndex = true;
+		}
+		else if (c == '}' && getIndex)
+		{
+			getIndex = false;
+			char* ptr;
+			int index = static_cast<int>(strtol(indexStr.c_str(), &ptr, 10));
+			if (*ptr)
+			{
+				output << "{" << indexStr << "} could not be converted to an integer" << std::endl;
+			}
+			else if(index >= 0 && index < replace.size())
+			{
+				pattern.append('"' + replace[index] + '"');
+			}
+			else
+			{
+				output << "{" << index << "} out of range" << std::endl;
+			}
+		}
+		else if (getIndex)
+		{
+			indexStr += c;
+		}
+		else
+		{
+			pattern += c;
+		}
+	}
+
+	return pattern;
+}
+
+void PatternCommand::run(std::vector<Parameter>& parameters, std::ostream& output, Console* console)
+{
+	std::string patternPath = "";
+
+	if (pathReader.read(patternPath, parameters))
+	{
+		std::filesystem::path path = std::filesystem::current_path().append(patternPath);
+		//output << "Pattern path: " << path << std::endl;
+		if (std::filesystem::directory_entry(path).exists())
+		{
+			std::vector<std::string> lines;
+			getFileLines(path, lines);
+
+			std::string pattern = "";
+			for (const auto& it : lines)
+			{
+				pattern.append(it);
+				if (pattern[pattern.size() - 1] != ' ')
+				{
+					pattern += ' ';
+				}
+			}
+
+			output << "Found pattern: " << pattern << std::endl;
+
+			std::vector<std::string> replace;
+			std::string rep;
+			while (patternReader.read(rep, parameters))
+			{
+				replace.push_back(rep);
+			}
+
+			for (int i = 0; i < replace.size(); i++)
+			{
+				output << "{" << i << "} -> " << replace[i] << std::endl;
+			}
+
+			//Parse found pattern to replace
+			std::string runPattern = parsePattern(pattern, replace, output);
+
+			output << "Final pattern to run: " << runPattern << std::endl;
+
+			console->execute(runPattern, output);
+		}
+		else
+		{
+			output << "The path " << path << " does not exist";
+		}
+	}
+	else
+	{
+		output << "No path to pattern given" << std::endl;
+	}
+}
+
+void PatternCommand::addInfo(std::ostream& output)
+{
+	output << "Parameters:\n";
+	pathReader.getInfo(output);
+	patternReader.getInfo(output);
+	output << "... other patterns to replace\n";
+}

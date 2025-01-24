@@ -6,7 +6,7 @@
 
 int main()
 {
-    Console console = Console({new HelloCommand(), new HelpCommand(), new QuitCommand(), new FilesCommand(), new CheckCommand(), new CountCommand()});
+    Console console = Console({new HelloCommand(), new HelpCommand(), new QuitCommand(), new FilesCommand(), new CheckCommand(), new CountCommand(), new PatternCommand()});
 
     std::string symbol = "[>] ";
 

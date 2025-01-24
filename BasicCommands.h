@@ -1,6 +1,9 @@
 #pragma once
 
+#include <filesystem>
+
 #include "Command.h"
+#include "FileUtility.h"
 
 class HelloCommand : public Command
 {
@@ -43,4 +46,25 @@ public:
 	}
 
 	virtual void run(std::vector<Parameter>& parameters, std::ostream& output, Console* console);
+};
+
+class PatternCommand : public Command
+{
+public:
+	ReaderStr pathReader;
+	ReaderStr patternReader;
+
+	PatternCommand() : Command("run", "Run pattern at the given file path"),
+		pathReader("File path to the pattern to run", true),
+		patternReader("First pattern to replace")
+	{};
+
+	virtual PatternCommand* clone() const
+	{
+		return new PatternCommand(*this);
+	}
+
+	virtual void run(std::vector<Parameter>& parameters, std::ostream& output, Console* console);
+
+	virtual void addInfo(std::ostream& output);
 };
