@@ -120,17 +120,29 @@ void FilesCommand::run(std::vector<Parameter>& parameters, std::ostream& output,
 	output << "Files: " << count << "/" << files.size() << std::endl;
 }
 
-void CheckCommand::run(std::vector<Parameter>& parameters, std::ostream& output, Console* console)
+void FileReaderCommand::run(std::vector<Parameter>& parameters, std::ostream& output, Console* console)
 {
 	std::vector<std::filesystem::directory_entry> files;
-
-	std::vector<std::string> fileTypes = { ".txt", ".cpp", ".h", ".glsl" };
-
 	bool recursive = getFiles(files, *this, parameters, output, console);
 	if (parameters.size() != 0)
 	{
 		parameters.erase(parameters.begin());
 	}
+
+	runReader(parameters, output, console, files);
+}
+
+void FileReaderCommand::addInfo(std::ostream& output)
+{
+	output << "Parameters:\n";
+	fileReader.getInfo(output);
+	addReaderInfo(output);
+}
+
+void CheckCommand::runReader(std::vector<Parameter>& parameters, std::ostream& output, Console* console, std::vector<std::filesystem::directory_entry>& files)
+{
+	std::vector<std::filesystem::path> fileTypes = { ".txt", ".cpp", ".h", ".glsl" };
+
 	int seed = 0;
 	int checkRate = 100; //100
 	int lineCheckRate = 100; //1000
@@ -145,20 +157,14 @@ void CheckCommand::run(std::vector<Parameter>& parameters, std::ostream& output,
 	int count = 0;
 	if (files.size() != 0)
 	{
-		output << console->addSpaces("Last modified", 35) << console->addSpaces("Size in bytes", 20) << std::endl;
+		std::stringstream st;
+		st << console->addSpaces("Last modified", 35) << console->addSpaces("Size in bytes", 20) << std::endl;
+		std::string infoColumns = st.str();
+		output << infoColumns;
 
 		for (auto it : files)
 		{
-			bool add = false;
-
-			for (auto jt : fileTypes)
-			{
-				if (it.path().extension() == jt)
-				{
-					add = true;
-					break;
-				}
-			}
+			bool add = vecUtil::contains(fileTypes, it.path().extension());
 
 			if (add && rand() % checkRate == 0)
 			{
@@ -172,11 +178,56 @@ void CheckCommand::run(std::vector<Parameter>& parameters, std::ostream& output,
 	output << "Files: " << count << "/" << files.size() << std::endl;
 }
 
-void CheckCommand::addInfo(std::ostream& output)
+void CheckCommand::addReaderInfo(std::ostream& output)
 {
-	output << "Parameters:\n";
-	fileReader.getInfo(output);
 	seedReader.getInfo(output);
 	rateReader.getInfo(output);
 	lineRateReader.getInfo(output);
+}
+
+void CountCommand::runReader(std::vector<Parameter>& parameters, std::ostream& output, Console* console, std::vector<std::filesystem::directory_entry>& files)
+{
+	std::vector<std::string> fileTypes;
+	std::string tp;
+	while (fileTypeReader.read(tp, parameters))
+	{
+		if (tp[0] != '.') tp = "." + tp;
+		fileTypes.push_back(tp);
+	}
+
+	output << fileTypes.size() << " file types to count: ";
+	for (auto it : fileTypes)
+	{
+		output << it << " ";
+	}
+	output << std::endl;
+
+	int count = 0;
+	int lineCount = 0;
+	int charCount = 0;
+
+	for (const auto& it : files)
+	{
+		if (vecUtil::contains(fileTypes, it.path().extension().string()))
+		{
+			std::vector<std::string> lines;
+			getFileLines(it, lines);
+			count++;
+			lineCount += lines.size();
+			for (const auto& jt : lines)
+			{
+				charCount += jt.size();
+			}
+		}
+	}
+
+	output << console->addSpaces("Files", 20) << count << std::endl;
+	output << console->addSpaces("Lines", 20) << lineCount << std::endl;
+	output << console->addSpaces("Characters", 20) << charCount << std::endl;
+}
+
+void CountCommand::addReaderInfo(std::ostream& output)
+{
+	fileTypeReader.getInfo(output);
+	output << "... other file types to count\n";
 }
