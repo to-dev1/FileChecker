@@ -51,6 +51,7 @@ void HelpCommand::run(std::vector<Parameter>& parameters, std::ostream& output, 
 	}
 	else
 	{
+		output << console->commands.size() << " available commands" << std::endl;
 		output << console->addSpaces("# Command", 15) << "# Description" << std::endl;
 
 		for (int i = 0; i < console->commands.size(); i++)
@@ -60,7 +61,8 @@ void HelpCommand::run(std::vector<Parameter>& parameters, std::ostream& output, 
 			output << console->addSpaces(cmd->name, 15) << cmd->desc << std::endl;
 		}
 
-		output << "\nWhen running a command, file checker displays its interpreation of the command in this format:\n<Command 1> [Argument 1] [Argument 2] <Command 2> [Argument 1]" << std::endl;
+		output << "\nWhen running a command, file checker displays its interpretation of the command in this format:\n<Command 1> [Argument 1] [Argument 2] <Command 2> [Argument 1]" << std::endl;
+		output << "\nTo prevent the command interpreter from splitting a text into multiple commands at each space, write the command as follows:\ncommand \"argument one\"" << std::endl;
 	}
 }
 

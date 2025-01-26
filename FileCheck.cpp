@@ -3,7 +3,7 @@
 void getFileInfo(const std::filesystem::directory_entry& item, std::ostream& output, Console* console)
 {
 	auto time = std::chrono::clock_cast<std::chrono::system_clock>(item.last_write_time());
-	auto const timeZone = std::chrono::locate_zone("Etc/GMT-3");
+	auto const timeZone = std::chrono::locate_zone(std::chrono::current_zone()->name());
 	output << console->addSpaces(std::format("{:%FT%T%Z}", std::chrono::zoned_time(timeZone, floor<std::chrono::milliseconds>(time))), 35) << console->addSpaces(std::to_string(item.file_size()), 20) << item.path().string() << std::endl;
 }
 
@@ -49,21 +49,12 @@ void checkFile(const std::filesystem::path& path, const int rate, std::ostream& 
 
 	if (lines.size() != 0)
 	{
-		/*
-		for (int i = 0; i < count; i++)
-		{
-			int index = rand() % lines.size();
-			output << " > Line: " << console->addSpaces(std::to_string(index), 6) << "Characters: " << console->addSpaces(std::to_string(lines[index].size()), 6) << lines[index] << std::endl;
-		}
-		*/
-
 		float range = static_cast<float>(lines.size()) / static_cast<float>(count);
 		for (int i = 0; i < count; i++)
 		{
 			float random = static_cast<float>(rand() % 1000) * 0.001f;
 			int index = static_cast<int>((static_cast<float>(i) + random) * range);
 			index = std::min(index, static_cast<int>(lines.size() - 1));
-			//std::cout << index << ", " << random << ", " << range << std::endl;
 			output << " > Line: " << console->addSpaces(std::to_string(index), 6) << "Characters: " << console->addSpaces(std::to_string(lines[index].size()), 6) << lines[index] << std::endl;
 		}
 	}
@@ -203,8 +194,11 @@ void CountCommand::runReader(std::vector<Parameter>& parameters, std::ostream& o
 	output << std::endl;
 
 	int count = 0;
+	int countNonEmpty = 0;
 	int lineCount = 0;
+	int lineCountNonEmpty = 0;
 	int charCount = 0;
+	int charCountNonEmpty = 0;
 
 	for (const auto& it : files)
 	{
@@ -212,18 +206,28 @@ void CountCommand::runReader(std::vector<Parameter>& parameters, std::ostream& o
 		{
 			std::vector<std::string> lines;
 			getFileLines(it, lines);
+
+			//File count
 			count++;
+			countNonEmpty += lines.size() != 0;
+
 			lineCount += lines.size();
 			for (const auto& jt : lines)
 			{
+				lineCountNonEmpty += jt.size() != 0;
 				charCount += jt.size();
+				for (const auto& kt : jt)
+				{
+					charCountNonEmpty += kt != ' ';
+				}
 			}
 		}
 	}
 
-	output << console->addSpaces("Files", 20) << count << std::endl;
-	output << console->addSpaces("Lines", 20) << lineCount << std::endl;
-	output << console->addSpaces("Characters", 20) << charCount << std::endl;
+	output << console->addSpaces("# Type", 20) << console->addSpaces("# Total", 20) << "# Non-empty" << std::endl;
+	output << console->addSpaces("Files", 20) << console->addSpaces(std::to_string(count), 20) << countNonEmpty << std::endl;
+	output << console->addSpaces("Lines", 20) << console->addSpaces(std::to_string(lineCount), 20) << lineCountNonEmpty << std::endl;
+	output << console->addSpaces("Characters", 20) << console->addSpaces(std::to_string(charCount), 20) << charCountNonEmpty << std::endl;
 }
 
 void CountCommand::addReaderInfo(std::ostream& output)
